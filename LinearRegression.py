@@ -42,9 +42,8 @@ W=torch.randn(20,1,requires_grad=True)
 b=torch.randn(1,requires_grad=True)
 learning_rate=0.0001
 
-
-##train_loop
-def train(W,b):
+if __name__ == '__main__':
+    #train_loop
     for epoch in range(20):
         epoch_loss=0
         for data in train_loader:
@@ -67,25 +66,20 @@ def train(W,b):
                 b.requires_grad_(True)
         print(f"{epoch} epoch : {epoch_loss}")
 
-#test loop
-def test():
-        labels=[]
-        outputs=[]
+    #test loop
+    labels=[]
+    outputs=[]
 
-        with torch.no_grad():
-            for data in test_loader:
-                xtrain=data["x"]
-                ytrain=data["y"]
-                
-                output=model(xtrain,W,b)
-                
-                labels.append(ytrain)
-                outputs.append(output)
-        return labels, outputs
+    with torch.no_grad():
+        for data in test_loader:
+            xtrain=data["x"]
+            ytrain=data["y"]
+            
+            output=model(xtrain,W,b)
+            
+            labels.append(ytrain)
+            outputs.append(output)
 
-if __name__ == '__main__':   
-    train(W,b)
-    labels,outputs=test()
     #evaluating the performance of our model
     print("-"*25)
     print("roc_score : ", metrics.roc_auc_score(torch.cat(labels).view(-1),torch.cat(outputs).view(-1)))
