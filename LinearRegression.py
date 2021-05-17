@@ -43,45 +43,51 @@ b=torch.randn(1,requires_grad=True)
 learning_rate=0.0001
 
 
-#train_loop
-for epoch in range(20):
-     epoch_loss=0
-     for data in train_loader:
-              xtrain=data["x"]
-              ytrain=data["y"]
+##train_loop
+def train(W,b):
+    for epoch in range(20):
+        epoch_loss=0
+        for data in train_loader:
+                xtrain=data["x"]
+                ytrain=data["y"]
 
-              if W.grad is not None:
-                W.grad_zero()
+                if W.grad is not None:
+                    W.grad_zero()
 
-              output=model(xtrain,W,b)
-              loss=torch.mean((ytrain.view(-1)-output.view(-1))**2)
-              epoch_loss=epoch_loss+loss.item()
-              loss.backward()
+                output=model(xtrain,W,b)
+                loss=torch.mean((ytrain.view(-1)-output.view(-1))**2)
+                epoch_loss=epoch_loss+loss.item()
+                loss.backward()
 
-              with torch.no_grad():
-                  W = W - learning_rate*W.grad
-                  b = b - learning_rate*b.grad
-              
-              W.requires_grad_(True)
-              b.requires_grad_(True)
-     print(f"{epoch} epoch : {epoch_loss}")
+                with torch.no_grad():
+                    W = W - learning_rate*W.grad
+                    b = b - learning_rate*b.grad
+                
+                W.requires_grad_(True)
+                b.requires_grad_(True)
+        print(f"{epoch} epoch : {epoch_loss}")
 
 #test loop
-labels=[]
-outputs=[]
+def test():
+        labels=[]
+        outputs=[]
 
-with torch.no_grad():
-      for data in test_loader:
-          xtrain=data["x"]
-          ytrain=data["y"]
-          
-          output=model(xtrain,W,b)
-          
-          labels.append(ytrain)
-          outputs.append(output)
+        with torch.no_grad():
+            for data in test_loader:
+                xtrain=data["x"]
+                ytrain=data["y"]
+                
+                output=model(xtrain,W,b)
+                
+                labels.append(ytrain)
+                outputs.append(output)
+        return labels, outputs
 
-#evaluating the performance of our model
-print("-"*25)
-print("roc_score : ", metrics.roc_auc_score(torch.cat(labels).view(-1),torch.cat(outputs).view(-1)))
+if __name__ == '__main__':   
+    train(W,b)
+    labels,outputs=test()
+    #evaluating the performance of our model
+    print("-"*25)
+    print("roc_score : ", metrics.roc_auc_score(torch.cat(labels).view(-1),torch.cat(outputs).view(-1)))
 
 
